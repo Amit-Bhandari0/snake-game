@@ -5,18 +5,22 @@ import random
 pygame.init()
 pygame.mixer.init()
 
+# Sounds
 collect_sound = pygame.mixer.Sound("sounds/collect_point.mp3")
 game_over_sound = pygame.mixer.Sound("sounds/game_over.mp3")
 
+# Game config
 WIDTH, HEIGHT = 800, 530
 GRID_SIZE = 20
 GRID_WIDTH = WIDTH // GRID_SIZE
 GRID_HEIGHT = HEIGHT // GRID_SIZE
 
+# Pygame setup
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Snake Game")
 clock = pygame.time.Clock()
 
+# Colors
 BACKGROUND = (10, 15, 25)
 SNAKE_HEAD = (76, 175, 80)
 SNAKE_BODY = (56, 142, 60)
@@ -25,6 +29,7 @@ TEXT_COLOR = (255, 255, 255)
 HOVER_COLOR = (100, 100, 255)
 OVERLAY_COLOR = (0, 0, 0, 180)
 
+# Fonts
 score_font = pygame.font.SysFont("consolas", 28, bold=True)
 big_font = pygame.font.SysFont("consolas", 64, bold=True)
 button_font = pygame.font.SysFont("consolas", 30, bold=True)
@@ -51,11 +56,10 @@ class Button:
 
     def is_clicked(self, mouse_pos, mouse_pressed):
         if self.rect.collidepoint(mouse_pos):
-            if mouse_pressed[0]:
-                if not self.clicked:
-                    self.clicked = True
-                    return True
-            else:
+            if mouse_pressed[0] and not self.clicked:
+                self.clicked = True
+                return True
+            elif not mouse_pressed[0]:
                 self.clicked = False
         else:
             self.clicked = False
@@ -81,19 +85,18 @@ class Snake:
         return self.positions[0]
 
     def set_direction(self, new_dir):
-        opposite = (-self.direction[0], -self.direction[1])
-        if new_dir != opposite:
+        # Prevent reversing directly
+        if new_dir != (-self.direction[0], -self.direction[1]):
             self.next_direction = new_dir
 
     def update(self):
         self.direction = self.next_direction
-
         head = self.get_head_position()
         x, y = self.direction
         new_position = ((head[0] + x) % GRID_WIDTH, (head[1] + y) % GRID_HEIGHT)
 
         if new_position in self.positions[1:]:
-            return False
+            return False  # Collided with self
 
         self.positions.insert(0, new_position)
         if len(self.positions) > self.grow_to:
@@ -112,15 +115,14 @@ class Food:
         self.randomize_position(snake_positions)
 
     def randomize_position(self, snake_positions):
-        available_positions = [
+        options = [
             (x, y)
             for x in range(GRID_WIDTH)
             for y in range(GRID_HEIGHT)
             if (x, y) not in snake_positions
         ]
-        if not available_positions:
-            return
-        self.position = random.choice(available_positions)
+        if options:
+            self.position = random.choice(options)
 
     def render(self):
         rect = pygame.Rect(
@@ -138,7 +140,6 @@ def start_menu():
         screen.fill(BACKGROUND)
 
         draw_text("🐍 SNAKE GAME 🐍", big_font, TEXT_COLOR, (WIDTH // 2, HEIGHT // 3))
-
         play_button.draw(screen, mouse_pos)
         quit_button.draw(screen, mouse_pos)
 
@@ -174,7 +175,7 @@ def game_over_screen(score):
         screen.blit(overlay, (0, 0))
 
         draw_text("GAME OVER", big_font, (255, 80, 80), (WIDTH // 2, HEIGHT // 3 - 50))
-        draw_text(f"Your Score: {score}", button_font, TEXT_COLOR, (WIDTH // 2, HEIGHT // 2 - 50))  # moved up 40 px
+        draw_text(f"Your Score: {score}", button_font, TEXT_COLOR, (WIDTH // 2, HEIGHT // 2 - 50))
 
         play_button.draw(screen, mouse_pos)
         quit_button.draw(screen, mouse_pos)
@@ -197,14 +198,14 @@ def game_over_screen(score):
 
         clock.tick(30)
 
-
 def game_loop():
     snake = Snake()
     food = Food(snake.positions)
-    running = True
+    paused = False
 
-    while running:
+    while True:
         clock.tick(snake.speed)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -218,6 +219,13 @@ def game_loop():
                     snake.set_direction((-1, 0))
                 elif event.key == pygame.K_RIGHT:
                     snake.set_direction((1, 0))
+                elif event.key == pygame.K_SPACE:
+                    paused = not paused  # Toggle pause
+
+        if paused:
+            draw_text("Paused", big_font, TEXT_COLOR, (WIDTH // 2, HEIGHT // 2))
+            pygame.display.flip()
+            continue
 
         if not snake.update():
             game_over_sound.play()
@@ -237,15 +245,12 @@ def game_loop():
         pygame.display.flip()
 
 def main():
-    # Start by showing start menu
     action = start_menu()
-
     while True:
         if action == 'play':
             score = game_loop()
             action = game_over_screen(score)
         else:
-            # fallback to start menu if somehow other action
             action = start_menu()
 
 if __name__ == "__main__":

@@ -24,31 +24,32 @@ Simple, smooth controls and a chill retro vibe.
 
 ---
 
-## Setup & Run
+## 🚀 Setup & Run
 
 1. Make sure you have Python 3.x installed  
 2. Install Pygame:  
-   \`\`\`bash
+   ```bash
    pip install pygame
-   \`\`\`  
+   ```
 3. Clone this repo:  
-   \`\`\`bash
+   ```bash
    git clone https://github.com/Amit-Bhandari0/snake-game.git
    cd snake-game
-   \`\`\`  
-4. Make sure you have the sound files in a folder named \`sounds\` inside the project directory:  
-   - \`collect_point.mp3\`  
-   - \`game_over.mp3\`  
+   ```
+4. Make sure you have the sound files in a folder named `sounds` inside the project directory:  
+   - `collect_point.mp3`  
+   - `game_over.mp3`  
 5. Run the game:  
-   \`\`\`bash
+   ```bash
    python snake_game.py
-   \`\`\`  
+   ```
 
 ---
 
-## Project Structure
 
-\`\`\`
+## 📁 Project Structure
+
+```
 /snake-game
 │
 ├── snake_game.py       # Main game script
@@ -56,10 +57,10 @@ Simple, smooth controls and a chill retro vibe.
 │   ├── collect_point.mp3
 │   └── game_over.mp3
 └── README.md           # This file
-
-\`\`\`
+```
 
 ---
+
 
 ## Dependencies
 
@@ -74,5 +75,3 @@ This project is open source and available under the MIT License.
 Feel free to use, modify, and share!  
 
 ---
-
-EOF
